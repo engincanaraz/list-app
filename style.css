@@ -1,0 +1,93 @@
+:root {
+  --primary-color: #4A90E2;
+  --bg-color: #f8f9fa;
+  --item-bg: #ffffff;
+  --text-color: #2c3e50;
+  --delete-color: #e74c3c;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.app-title {
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 2.5rem;
+}
+
+.shopping-form .input-group {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.shopping-form .form-control {
+  border: none;
+  padding: 0.8rem 1.2rem;
+}
+
+.shopping-form .btn-primary {
+  background-color: var(--primary-color);
+  border: none;
+  padding: 0 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.shopping-form .btn-primary:hover {
+  background-color: #357ABD;
+  transform: translateY(-1px);
+}
+
+.shopping-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--item-bg);
+  padding: 1rem 1.5rem;
+  margin-bottom: 0.75rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.shopping-list li:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.shopping-list li .item-name {
+  flex: 1;
+  font-size: 1.1rem;
+}
+
+.shopping-list li .form-check-input {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.shopping-list li .delete-icon {
+  color: var(--delete-color);
+  opacity: 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-size: 20px !important;
+}
+
+.shopping-list li:hover .delete-icon {
+  opacity: 1;
+}
+
+.shopping-list li .form-check-input:checked + .item-name {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
