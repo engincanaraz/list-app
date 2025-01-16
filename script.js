@@ -3,9 +3,9 @@
 const shoppingList = document.querySelector(".shopping-list");
 const shoppingForm = document.querySelector(".shopping-form");
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   loadItems();
-  shoppingForm.addEventListener("submit", handleFormSubmit); 
+  shoppingForm.addEventListener("submit", handleFormSubmit);
 });
 function loadItems() {
   const items = [
@@ -24,7 +24,7 @@ function loadItems() {
 function addItem(input) {
   const id = generateId();
   console.log(id);
-  
+
   const newItem = createListItem({
     id: generateId(),
     name: input.value,
@@ -49,22 +49,23 @@ function handleFormSubmit(e) {
 }
 function toggleCompleted(e) {
   const li = e.target.parentElement;
-  li.toggleAttribute("item-completed" , e.target.checked);
-
-  
+  li.toggleAttribute("item-completed", e.target.checked);
 }
 function createListItem(item) {
   //item
   const div = document.createElement("div");
   div.textContent = item.name;
   div.className = "item-name";
+  div.addEventListener("click", openEditMode);
+  div.addEventListener("blur", closeEditMode);
+  div.addEventListener("keydown", cancelEnter);
 
   //checkbox
   const input = document.createElement("input");
   input.type = "checkbox";
   input.className = "form-check-input";
   input.checked = item.completed;
-  input.addEventListener("change", toggleCompleted); 
+  input.addEventListener("change", toggleCompleted);
 
   //delete icon
   const deleteIcon = document.createElement("i");
@@ -86,4 +87,20 @@ function createListItem(item) {
 function removeItem(e) {
   const li = e.target.parentElement;
   shoppingList.removeChild(li);
+}
+
+function openEditMode(e) {
+  const li = e.target.parentElement;
+  if (li.hasAttribute("item-completed") === false) {
+    e.target.contentEditable = true;
+  }
+}
+function closeEditMode(e) {
+  e.target.contentEditable = false;
+}
+function cancelEnter(e) {
+  if (e.key == "Enter") {
+    e.preventDefault();
+    closeEditMode(e);
+  }
 }
