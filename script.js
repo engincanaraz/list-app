@@ -1,194 +1,247 @@
 // DOM elementlerini seçiyoruz
-const shoppingList = document.querySelector(".shopping-list");
-const shoppingForm = document.querySelector(".shopping-form");
-const filterButtons = document.querySelectorAll(".filter-buttons button");
-const retroGridContainer = document.getElementById("retro-grid");
+const todoList = document.querySelector(".todo-list");
+const todoForm = document.querySelector(".todo-form");
+const filterButtons = document.querySelectorAll("[item-filter]");
+const clearButton = document.querySelector(".clear");
+
+// Motivasyon mesajları
+const motivationMessages = {
+  empty: [
+    "Bugün tamamlayacak harika şeyler seni bekliyor!",
+    "Yeni bir güne başlamak için mükemmel bir zaman!",
+    "Hedeflerini belirle ve başla!",
+    "Her büyük başarı küçük adımlarla başlar!"
+  ],
+  completed: [
+    "Harika iş çıkardın! Daha fazlasını başarabilirsin!",
+    "Her tamamlanan görev, başarıya giden yolda bir adım!",
+    "Muhteşem! Kendini aşmaya devam et!",
+    "Bu tempoda devam et, hedeflerine çok yakınsın!"
+  ],
+  progress: [
+    "Güzel ilerliyorsun, devam et!",
+    "Her adım seni hedefe yaklaştırıyor!",
+    "İnanıyorum, bugün harika işler başaracaksın!",
+    "Motivasyonun yüksek, hedeflerine doğru ilerliyorsun!"
+  ]
+};
 
 // Sayfa yüklendiğinde çalışacak ana fonksiyon
 document.addEventListener("DOMContentLoaded", function () {
-  
   // Başlangıç öğelerini yükle
   loadItems();
+  uptadeState();
 
-  // Form gönderildiğinde yeni öğe ekleme işlemini başlat
-  shoppingForm.addEventListener("submit", handleFormSubmit);
+  // Event listener'ları ekle
+  todoForm.addEventListener("submit", handleFormSubmit);
+  clearButton.addEventListener("click", clearItems);
 
-  // Filtreleme butonlarına tıklama olaylarını ekle
   for (let button of filterButtons) {
     button.addEventListener("click", handleFilterSelection);
   }
 });
 
-// Başlangıç öğelerini yükleyen fonksiyon
-function loadItems() {
-  // Örnek öğeler (gerçek uygulamada bu veriler bir API'den veya local storage'dan gelebilir)
-  const items = [
-    { id: 1, name: "Yemek yap", completed: false },
-    { id: 2, name: "Belgeleri al", completed: true },
-    { id: 3, name: "İlerleme raporu hazırla", completed: true },
-    { id: 4, name: "Günlük ilaç", completed: false },
-    { id: 5, name: "Haftasonu için alışveriş", completed: false },
-  ];
+// Rastgele motivasyon mesajı seç
+function getRandomMessage(type) {
+  const messages = motivationMessages[type];
+  return messages[Math.floor(Math.random() * messages.length)];
+}
+
+// Motivasyon mesajını göster
+function showMotivationMessage(type) {
+  const motivationElement = document.querySelector(".motivation-message");
+  const messageElement = motivationElement.querySelector(".message");
   
-  // Listeyi temizle ve öğeleri ekle
-  shoppingList.innerHTML = "";
-  for (let item of items) {
-    const li = createListItem(item);
-    shoppingList.appendChild(li);
+  messageElement.textContent = getRandomMessage(type);
+  motivationElement.classList.remove("d-none");
+  
+  // 5 saniye sonra mesajı gizle
+  setTimeout(() => {
+    motivationElement.classList.add("d-none");
+  }, 10000);
+}
+
+// Uygulama durumunu güncelleme
+function uptadeState() {
+  const isEmpty = todoList.querySelectorAll("li").length == 0;
+  const alert = document.querySelector(".alert");
+  const filterBtns = document.querySelector(".filter-buttons");
+
+  if (isEmpty) {
+    alert.classList.remove("d-none");
+    alert.textContent = getRandomMessage("empty");
+    clearButton.classList.add("d-none");
+    filterBtns.classList.add("d-none");
+  } else {
+    alert.classList.add("d-none");
+    clearButton.classList.remove("d-none");
+    filterBtns.classList.remove("d-none");
   }
 }
 
-// Yeni öğe ekleyen fonksiyon
+// LocalStorage'a kaydetme
+function saveToLocalStorage() {
+  const listItem = todoList.querySelectorAll("li");
+  const list = [];
+
+  for (let li of listItem) {
+    const id = li.getAttribute("item-id");
+    const name = li.querySelector(".item-name").textContent;
+    const completed = li.hasAttribute("item-completed");
+    list.push({ id, name, completed });
+  }
+
+  localStorage.setItem("todoItems", JSON.stringify(list));
+}
+
+// Görevleri yükleme
+function loadItems() {
+  const items = JSON.parse(localStorage.getItem("todoItems")) || [];
+
+  todoList.innerHTML = "";
+  for (let item of items) {
+    const li = createListItem(item);
+    todoList.appendChild(li);
+  }
+  uptadeState();
+}
+
+// Yeni görev ekleme
 function addItem(input) {
-  // Benzersiz bir ID oluştur
   const id = generateId();
-  
-  // Yeni öğeyi oluştur ve listenin başına ekle
+
   const newItem = createListItem({
     id: id,
     name: input.value,
-    completed: false,
+    completed: false
   });
-  shoppingList.prepend(newItem);
-  
-  // Input alanını temizle ve filtreleri güncelle
+
+  todoList.prepend(newItem);
   input.value = "";
   uptadeFilterItems();
+  uptadeState();
+  saveToLocalStorage();
+  showMotivationMessage("progress");
 }
 
-// Benzersiz ID oluşturan yardımcı fonksiyon
+// Benzersiz ID oluşturma
 function generateId() {
   return Date.now().toString();
 }
 
-// Form gönderimini işleyen fonksiyon
+// Form gönderimini işleme
 function handleFormSubmit(e) {
   e.preventDefault();
-  
   const input = document.getElementById("item_name");
-  
-  // Boş girişleri kontrol et
+
   if (input.value.trim().length === 0) {
     alert("Lütfen bir görev adı giriniz");
     return;
   }
-  
-  // Yeni öğeyi ekle
+
   addItem(input);
 }
 
-// Öğenin tamamlanma durumunu değiştiren fonksiyon
-function toggleCompleted(e) {
-  const li = e.target.parentElement;
-  li.toggleAttribute("item-completed", e.target.checked);
+// Görev tamamlama durumunu değiştirme
+function toggleComplete(e) {
+  const item = e.target.closest("li");
+  const wasCompleted = item.hasAttribute("item-completed");
+  
+  if (wasCompleted) {
+    item.removeAttribute("item-completed");
+  } else {
+    item.setAttribute("item-completed", "");
+    showMotivationMessage("completed");
+  }
+  
+  saveToLocalStorage();
   uptadeFilterItems();
 }
 
-// Yeni liste öğesi oluşturan fonksiyon
-function createListItem(item) {
-  // Öğe adını içeren div elementi
-  const div = document.createElement("div");
-  div.textContent = item.name;
-  div.className = "item-name";
-  div.addEventListener("click", openEditMode);
-  div.addEventListener("blur", closeEditMode);
-  div.addEventListener("keydown", cancelEnter);
+// Görev silme
+function removeItem(e) {
+  const item = e.target.closest("li");
+  
+  // Silme animasyonu
+  item.style.transform = "translateX(100%)";
+  item.style.opacity = "0";
+  
+  setTimeout(() => {
+    item.remove();
+    uptadeState();
+    saveToLocalStorage();
+    uptadeFilterItems();
+  }, 300);
+}
 
-  // Checkbox elementi
-  const input = document.createElement("input");
-  input.type = "checkbox";
-  input.className = "form-check-input";
-  input.checked = item.completed;
-  input.addEventListener("change", toggleCompleted);
+// Tüm görevleri silme
+function clearItems() {
+  if (confirm("Tüm görevleri silmek istediğinize emin misiniz?")) {
+    todoList.innerHTML = "";
+    uptadeState();
+    saveToLocalStorage();
+    uptadeFilterItems();
+  }
+}
+
+// Liste öğesi oluşturma
+function createListItem(item) {
+  const li = document.createElement("li");
+  li.setAttribute("item-id", item.id);
+  if (item.completed) li.setAttribute("item-completed", "");
+
+  // Checkbox
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.className = "form-check-input";
+  checkbox.checked = item.completed;
+  checkbox.addEventListener("change", toggleComplete);
+
+  // Görev adı
+  const itemName = document.createElement("span");
+  itemName.className = "item-name";
+  itemName.textContent = item.name;
 
   // Silme ikonu
   const deleteIcon = document.createElement("i");
-  deleteIcon.className = "fs-3 bi bi-trash text-danger delete-icon";
+  deleteIcon.className = "fs-3 bi bi-trash color-primary delete-icon";
   deleteIcon.addEventListener("click", removeItem);
 
   // Ana liste öğesi
-  const li = document.createElement("li");
-  li.className = "border rounded p-2 mb-1";
-  li.toggleAttribute("item-completed", item.completed);
-
-  // Elementleri birleştir
-  li.appendChild(input);
-  li.appendChild(div);
+  li.appendChild(checkbox);
+  li.appendChild(itemName);
   li.appendChild(deleteIcon);
 
   return li;
 }
 
-// Öğeyi listeden kaldıran fonksiyon
-function removeItem(e) {
-  const li = e.target.parentElement;
-  // Animasyonlu silme efekti
-  li.style.transform = "translateX(100%)";
-  li.style.opacity = "0";
-  setTimeout(() => {
-    shoppingList.removeChild(li);
-  }, 300);
-}
-
-// Düzenleme modunu açan fonksiyon
-function openEditMode(e) {
-  const div = e.target;
-  div.contentEditable = true;
-  div.focus();
-}
-
-// Düzenleme modunu kapatan fonksiyon
-function closeEditMode(e) {
-  const div = e.target;
-  div.contentEditable = false;
-}
-
-// Enter tuşuna basıldığında düzenleme modundan çıkan fonksiyon
-function cancelEnter(e) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    e.target.blur();
-  }
-}
-
-// Filtre seçimini işleyen fonksiyon
+// Filtre seçimini işleme
 function handleFilterSelection(e) {
-  // Aktif filtre butonunu güncelle
-  filterButtons.forEach(btn => btn.classList.remove("btn-primary"));
-  filterButtons.forEach(btn => btn.classList.add("btn-secondary"));
+  filterButtons.forEach((btn) => {
+    btn.classList.remove("btn-primary");
+    btn.classList.add("btn-secondary");
+  });
+
   e.target.classList.remove("btn-secondary");
   e.target.classList.add("btn-primary");
-  
-  // Seçilen filtreye göre öğeleri filtrele
-  const filterType = e.target.getAttribute("item-filter");
-  filterItems(filterType);
+
+  uptadeFilterItems(e.target.getAttribute("item-filter"));
 }
 
-// Öğeleri filtreleyen fonksiyon
-function filterItems(filterType) {
-  const items = shoppingList.querySelectorAll("li");
-  
-  items.forEach(item => {
-    switch(filterType) {
+// Görevleri filtreleme
+function uptadeFilterItems(filterType = "all") {
+  const items = todoList.querySelectorAll("li");
+
+  items.forEach((item) => {
+    switch (filterType) {
       case "completed":
         item.style.display = item.hasAttribute("item-completed") ? "" : "none";
         break;
       case "uncompleted":
         item.style.display = !item.hasAttribute("item-completed") ? "" : "none";
         break;
-      default: // "all"
+      default:
         item.style.display = "";
     }
   });
-}
-
-// Aktif filtreyi güncelleyen fonksiyon
-function uptadeFilterItems() {
-  const activeFilter = document.querySelector(".filter-buttons .btn-primary");
-  filterItems(activeFilter.getAttribute("item-filter"));
-}
-
-// RetroGrid'i başlat
-function RetroGrid() {
-  return '<div class="retro-grid">Retro Grid</div>';
 }
