@@ -1,9 +1,13 @@
 :root {
-  --primary-color: #4A90E2;
-  --bg-color: #f8f9fa;
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --bg-color: #f8fafc;
   --item-bg: #ffffff;
-  --text-color: #2c3e50;
-  --delete-color: #e74c3c;
+  --text-color: #1e293b;
+  --delete-color: #ef4444;
+  --completed-color: #64748b;
+  --border-radius: 12px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -15,34 +19,85 @@
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
 }
 
 .app-title {
   color: var(--primary-color);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 2.5rem;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 4px rgba(99, 102, 241, 0.1);
+}
+
+.card {
+  border: none;
+  border-radius: var(--border-radius);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
 }
 
 .shopping-form .input-group {
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  overflow: hidden;
 }
 
 .shopping-form .form-control {
-  border: none;
-  padding: 0.8rem 1.2rem;
+  border: 2px solid transparent;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  transition: var(--transition);
+}
+
+.shopping-form .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: none;
 }
 
 .shopping-form .btn-primary {
   background-color: var(--primary-color);
   border: none;
-  padding: 0 1.5rem;
-  transition: all 0.3s ease;
+  padding: 0 2rem;
+  transition: var(--transition);
 }
 
 .shopping-form .btn-primary:hover {
-  background-color: #357ABD;
+  background-color: var(--primary-hover);
   transform: translateY(-1px);
+}
+
+.filter-buttons {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: var(--border-radius);
+  padding: 1rem !important;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-buttons .btn {
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.filter-buttons .btn-primary {
+  background-color: var(--primary-color);
+  border: none;
+}
+
+.filter-buttons .btn-secondary {
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid #e2e8f0;
+}
+
+.filter-buttons .btn-secondary:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
 .shopping-list li {
@@ -53,41 +108,60 @@ body {
   background-color: var(--item-bg);
   padding: 1rem 1.5rem;
   margin-bottom: 0.75rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  transition: all 0.3s ease;
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: var(--transition);
+  border: 1px solid #e2e8f0;
 }
 
 .shopping-list li:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .shopping-list li .item-name {
   flex: 1;
   font-size: 1.1rem;
+  padding: 0.25rem 0;
+  cursor: pointer;
 }
 
 .shopping-list li .form-check-input {
-  width: 1.2rem;
-  height: 1.2rem;
-  margin-right: 0.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.75rem;
   cursor: pointer;
+  border-color: #cbd5e1;
+  transition: var(--transition);
+}
+
+.shopping-list li .form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 .shopping-list li .delete-icon {
   color: var(--delete-color);
   opacity: 0;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   cursor: pointer;
-  font-size: 20px !important;
+  font-size: 1.25rem !important;
 }
 
 .shopping-list li:hover .delete-icon {
-  opacity: 1;
+  opacity: 0.8;
 }
 
-.shopping-list li .form-check-input:checked + .item-name {
+.shopping-list li:hover .delete-icon:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.shopping-list li[item-completed] {
+  background-color: #f8fafc;
+}
+
+.shopping-list li[item-completed] .item-name {
   text-decoration: line-through;
-  opacity: 0.6;
+  color: var(--completed-color);
 }

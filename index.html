@@ -16,13 +16,19 @@
         <div class="col-md-8">
           <div class="card shadow-lg">
             <div class="card-body">
-              <h1 class="text-center mb-4 app-title">Alışveriş Listesi</h1>
+              <h1 class="text-center mb-4 app-title">Yapılacaklar Listesi</h1>
               <form class="shopping-form mb-4">
                 <div class="input-group">
-                  <input type="text" id="item_name" class="form-control form-control-lg" placeholder="Ürün Ekle">
+                  <input type="text" id="item_name" class="form-control form-control-lg" placeholder="Ekle">
                   <button type="submit" class="btn btn-primary px-4"><i class="bi bi-plus-lg"></i></button>
                 </div>
               </form>
+
+              <div class="filter-buttons border rounded p-3 mb-3">
+                <button item-filter="all" class="btn btn-primary" >Tümü</button>
+                <button item-filter="completed" class="btn btn-secondary">Tamamlanmış</button>
+                <button item-filter="uncompleted" class="btn btn-secondary">Tamamlanmamış </button>
+              </div>
               <ul class="shopping-list list-unstyled mb-0">
               </ul>
             </div>
